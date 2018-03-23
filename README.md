@@ -4,6 +4,11 @@
 
 A Webpack plugin to upload assets in Google Cloud Storage.
 
+> **This plugin is a fork from [webpack-google-cloud-storage-plugin](https://github.com/syndbg/webpack-google-cloud-storage-plugin)**
+>
+> This fork adds the ability to set metadatas to the GCS objects (especially useful for Cache-Content).
+> You can also upload arbitrary static directory, not related to Webpack with the ```staticDirs``` option.
+
 ## Installation
 
 `npm install --save webpack-google-cloud-storage-plugin`
@@ -23,6 +28,8 @@ module.exports = {
       include: ['app.js'],
       // NOTE: Array of filenames to exclude in the uploading process
       exclude: ['cats.js'],
+      // NOTE: Array of static directories (not related to Webpack) to be uploaded
+      staticDirs: ['./static'],
       // NOTE: Options passed directly to
       // Google cloud Node Storage client.
       // This is mostly authentication-wise.
@@ -47,6 +54,10 @@ module.exports = {
         destinationNameFn: file =>
            path.join('assets', file.path)
         ,
+        // NOTE: Function to set metadatas to objects uploaded to GCS
+        metaDataFn: file => ({
+          cacheContent: 'max-age=86400, s-maxage=604800, public'
+        }),
         // Make gzip compressed (default: false)
         gzip: true,
         // Make file public (default: false)
