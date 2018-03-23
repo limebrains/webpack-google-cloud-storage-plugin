@@ -120,6 +120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    get: function get() {
 	      return {
 	        directory: _propTypes2.default.string,
+	        staticDirs: _propTypes2.default.array,
 	        include: _propTypes2.default.array,
 	        exclude: _propTypes2.default.array,
 	        storageOptions: _propTypes2.default.object.isRequired,
@@ -155,9 +156,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn || this.constructor.defaultDestinationNameFn;
 	    this.uploadOptions.metaDataFn = this.uploadOptions.metaDataFn || this.constructor.defaultMetaDataFn;
 
-	    this.options = (0, _lodash2.default)(options, ['directory', 'include', 'exclude', 'basePath']);
+	    this.options = (0, _lodash2.default)(options, ['directory', 'include', 'exclude', 'staticDirs', 'basePath']);
 
 	    this.options.exclude = this.options.exclude || [];
+	    this.options.staticDirs = this.options.staticDirs || [];
 	  }
 
 	  _createClass(WebpackGoogleCloudStoragePlugin, [{
@@ -244,6 +246,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return _this3.constructor.handleErrors(e, compilation, cb);
 	          });
 	        }
+	        _this3.options.staticDirs.forEach(function (dir) {
+	          recursive(dir, _this3.options.exclude).then(function (files) {
+	            return files.map(function (f) {
+	              return { name: _path2.default.basename(f), path: f };
+	            });
+	          }).then(function (files) {
+	            return _this3.handleFiles(files);
+	          }).then(function () {
+	            return cb();
+	          }).catch(function (e) {
+	            return _this3.constructor.handleErrors(e, compilation, cb);
+	          });
+	        });
 	      });
 	    }
 	  }, {

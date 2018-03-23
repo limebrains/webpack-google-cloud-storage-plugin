@@ -11,6 +11,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   static get schema() {
     return {
       directory: PropTypes.string,
+      staticDirs: PropTypes.array,
       include: PropTypes.array,
       exclude: PropTypes.array,
       storageOptions: PropTypes.object.isRequired,
@@ -69,10 +70,12 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         'directory',
         'include',
         'exclude',
+        'staticDirs',
         'basePath',
       ]);
 
     this.options.exclude = this.options.exclude || [];
+    this.options.staticDirs = this.options.staticDirs || [];
   }
 
   connect() {
@@ -137,6 +140,13 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
           .then(() => cb())
           .catch(e => this.constructor.handleErrors(e, compilation, cb));
       }
+      this.options.staticDirs.forEach((dir) => {
+        recursive(dir, this.options.exclude)
+          .then(files => files.map(f => ({ name: path.basename(f), path: f })))
+          .then(files => this.handleFiles(files))
+          .then(() => cb())
+          .catch(e => this.constructor.handleErrors(e, compilation, cb));
+      });
     });
   }
 
