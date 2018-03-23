@@ -95,6 +95,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return file.path;
 	    }
 	  }, {
+	    key: 'defaultMetaDataFn',
+	    value: function defaultMetaDataFn() {
+	      return {};
+	    }
+	  }, {
 	    key: 'getAssetFiles',
 	    value: function getAssetFiles(_ref) {
 	      var assets = _ref.assets;
@@ -124,6 +129,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          gzip: _propTypes2.default.bool,
 	          public: _propTypes2.default.bool,
 	          destinationNameFn: _propTypes2.default.func,
+	          metaDataFn: _propTypes2.default.func,
 	          makePublic: _propTypes2.default.bool
 	        })
 	      };
@@ -147,6 +153,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.storageOptions = options.storageOptions;
 	    this.uploadOptions = options.uploadOptions;
 	    this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn || this.constructor.defaultDestinationNameFn;
+	    this.uploadOptions.metaDataFn = this.uploadOptions.metaDataFn || this.constructor.defaultMetaDataFn;
 
 	    this.options = (0, _lodash2.default)(options, ['directory', 'include', 'exclude', 'basePath']);
 
@@ -251,7 +258,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return bucket.upload(file.path, {
 	          destination: _this4.uploadOptions.destinationNameFn(file),
 	          gzip: _this4.uploadOptions.gzip || false,
-	          public: _this4.uploadOptions.makePublic || false
+	          public: _this4.uploadOptions.makePublic || false,
+	          metadata: _this4.uploadOptions.metaDataFn(file)
 	        });
 	      });
 	      return _bluebird2.default.all(uploadFiles);

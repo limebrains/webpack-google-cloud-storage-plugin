@@ -20,6 +20,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         gzip: PropTypes.bool,
         public: PropTypes.bool,
         destinationNameFn: PropTypes.func,
+        metaDataFn: PropTypes.func,
         makePublic: PropTypes.bool,
       }),
     };
@@ -31,6 +32,10 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
 
   static defaultDestinationNameFn(file) {
     return file.path;
+  }
+
+  static defaultMetaDataFn() {
+    return {};
   }
 
   static getAssetFiles({ assets }) {
@@ -56,6 +61,8 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     this.uploadOptions = options.uploadOptions;
     this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn ||
       this.constructor.defaultDestinationNameFn;
+    this.uploadOptions.metaDataFn = this.uploadOptions.metaDataFn ||
+      this.constructor.defaultMetaDataFn;
 
     this.options = pick(options,
       [
@@ -140,6 +147,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
          destination: this.uploadOptions.destinationNameFn(file),
          gzip: this.uploadOptions.gzip || false,
          public: this.uploadOptions.makePublic || false,
+         metadata: this.uploadOptions.metaDataFn(file),
        })
     );
     return Promise.all(uploadFiles);
