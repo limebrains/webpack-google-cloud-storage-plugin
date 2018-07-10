@@ -224,7 +224,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // NOTE: Use specified directory, webpack.config.output or current dir.
 	      this.options.directory = this.options.directory || compiler.options.output.path || compiler.options.output.context || '.';
 
-	      compiler.plugin('after-emit', function (compilation, cb) {
+	      compiler.plugin('after-compile', function (compilation, cb) {
 	        if (_this3.options.directory) {
 	          recursive(_this3.options.directory, _this3.options.exclude).then(function (files) {
 	            return files.map(function (f) {

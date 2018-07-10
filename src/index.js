@@ -127,7 +127,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
                              compiler.options.output.context ||
                              '.';
 
-    compiler.plugin('after-emit', (compilation, cb) => {
+    compiler.plugin('after-compile', (compilation, cb) => {
       if (this.options.directory) {
         recursive(this.options.directory, this.options.exclude)
           .then(files => files.map(f => ({ name: path.basename(f), path: f })))
