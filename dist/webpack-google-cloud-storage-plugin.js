@@ -111,9 +111,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'handleErrors',
-	    value: function handleErrors(error, compilation, cb) {
-	      compilation.errors.push(new Error('WebpackGoogleCloudStoragePlugin: ' + error.stack));
-	      cb();
+	    value: function handleErrors(error, compilation) {
+	      var newError = new Error('WebpackGoogleCloudStoragePlugin: ' + error.stack);
+	      if (compilation.errors) {
+	        compilation.errors.push(newError);
+	      } else {
+	        // eslint-disable-next-line no-param-reassign
+	        compilation.errors = [newError];
+	      }
 	    }
 	  }, {
 	    key: 'schema',
@@ -224,7 +229,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // NOTE: Use specified directory, webpack.config.output or current dir.
 	      this.options.directory = this.options.directory || compiler.options.output.path || compiler.options.output.context || '.';
 
-	      compiler.plugin('after-compile', function (compilation, cb) {
+	      compiler.plugin('done', function (compilation) {
 	        if (_this3.options.directory) {
 	          recursive(_this3.options.directory, _this3.options.exclude).then(function (files) {
 	            return files.map(function (f) {
@@ -232,18 +237,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	          }).then(function (files) {
 	            return _this3.handleFiles(files);
-	          }).then(function () {
-	            return cb();
 	          }).catch(function (e) {
-	            return _this3.constructor.handleErrors(e, compilation, cb);
+	            return _this3.constructor.handleErrors(e, compilation);
 	          });
 	        } else {
 	          _this3.constructor.getAssetFiles(compilation).then(function (files) {
 	            return _this3.handleFiles(files);
-	          }).then(function () {
-	            return cb();
 	          }).catch(function (e) {
-	            return _this3.constructor.handleErrors(e, compilation, cb);
+	            return _this3.constructor.handleErrors(e, compilation);
 	          });
 	        }
 	        _this3.options.staticDirs.forEach(function (dir) {
@@ -253,10 +254,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	          }).then(function (files) {
 	            return _this3.handleFiles(files);
-	          }).then(function () {
-	            return cb();
 	          }).catch(function (e) {
-	            return _this3.constructor.handleErrors(e, compilation, cb);
+	            return _this3.constructor.handleErrors(e, compilation);
 	          });
 	        });
 	      });

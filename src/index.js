@@ -44,11 +44,14 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     return Promise.resolve(files);
   }
 
-  static handleErrors(error, compilation, cb) {
-    compilation.errors.push(
-      new Error(`WebpackGoogleCloudStoragePlugin: ${error.stack}`)
-    );
-    cb();
+  static handleErrors(error, compilation) {
+    const newError = new Error(`WebpackGoogleCloudStoragePlugin: ${error.stack}`);
+    if (compilation.errors) {
+      compilation.errors.push(newError);
+    } else {
+// eslint-disable-next-line no-param-reassign
+      compilation.errors = [newError];
+    }
   }
 
   constructor(options = {}) {
@@ -127,25 +130,22 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
                              compiler.options.output.context ||
                              '.';
 
-    compiler.plugin('after-compile', (compilation, cb) => {
+    compiler.plugin('done', (compilation) => {
       if (this.options.directory) {
         recursive(this.options.directory, this.options.exclude)
           .then(files => files.map(f => ({ name: path.basename(f), path: f })))
           .then(files => this.handleFiles(files))
-          .then(() => cb())
-          .catch(e => this.constructor.handleErrors(e, compilation, cb));
+          .catch(e => this.constructor.handleErrors(e, compilation));
       } else {
         this.constructor.getAssetFiles(compilation)
           .then(files => this.handleFiles(files))
-          .then(() => cb())
-          .catch(e => this.constructor.handleErrors(e, compilation, cb));
+          .catch(e => this.constructor.handleErrors(e, compilation));
       }
       this.options.staticDirs.forEach((dir) => {
         recursive(dir, this.options.exclude)
           .then(files => files.map(f => ({ name: path.basename(f), path: f })))
           .then(files => this.handleFiles(files))
-          .then(() => cb())
-          .catch(e => this.constructor.handleErrors(e, compilation, cb));
+          .catch(e => this.constructor.handleErrors(e, compilation));
       });
     });
   }
